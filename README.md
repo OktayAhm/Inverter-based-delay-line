@@ -11,10 +11,9 @@ This repository contains the design, simulation, and optimization of a high-prec
 * Equalize delays for rising and falling edges.
 
 ## Contents
-* Schematics: Includes designs for inverters, multiplexers, AND gates, complete delay lines and testbenches.
+* Schematics and Layouts: Includes designs for inverter, multiplexer, AND gate, complete delay lines and testbenches.
 * Simulation Scripts: Verilog-A and MATLAB scripts for testing and analysis.
 * Plots: DNL, INL, and power consumption plots for both standard and low-power designs.
-* Reports: Detailed project report and presentation slides.
 
 ## Design Components
 ### Inverters
