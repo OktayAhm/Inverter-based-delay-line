@@ -1,0 +1,58 @@
+// Verilog-A module that writes the average rising and falling edge delays to a csv file.
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module writer (INPUT,OUTPUT,VDD,VSS);
+
+    input INPUT,OUTPUT;
+    inout VDD,VSS;
+    electrical INPUT,OUTPUT,VDD,VSS;
+    real threshold;
+
+    integer file;
+    real input_rise = 0;
+    real output_rise = 0;
+    real input_fall = 0;
+    real output_fall = 0;
+
+    real delays_rise = 0;
+    real delays_fall = 0;
+    real cycles_rise = 0;
+    real cycles_fall = 0;
+
+    analog begin
+        threshold = (V(VDD)+V(VSS))/2;
+
+        @ (initial_step) begin
+            file = $fopen("delays.csv", "a");
+        end
+
+        @ (cross(V(INPUT)-threshold,1)) begin
+            input_rise = $abstime;
+        end
+
+        @ (cross(V(INPUT)-threshold,-1)) begin
+            input_fall = $abstime;
+        end
+
+        @ (cross(V(OUTPUT)-threshold,1)) begin
+            output_rise = $abstime;
+            delays_rise = delays_rise + (output_rise-input_rise);
+            cycles_rise = cycles_rise + 1;
+        end
+
+        @ (cross(V(OUTPUT)-threshold,-1)) begin
+            output_fall = $abstime;
+            delays_fall = delays_fall + (output_fall-input_fall);
+            cycles_fall = cycles_fall + 1;
+        end
+
+        @ (final_step) begin
+            $fwrite(file, "%g\n", delays_rise/cycles_rise);
+            $fwrite(file, "%g\n\n", delays_fall/cycles_fall);
+            $fclose(file);
+        end
+    end
+
+endmodule

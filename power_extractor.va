@@ -1,0 +1,39 @@
+// Verilog-A module that writes the average power consumption to a file.
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module power_extractor (IN,OUT);
+
+    input IN;
+    output OUT;
+    electrical IN,OUT;
+
+    integer file;
+
+    real dt = 0;
+    real last_step = 0;
+    real this_step = 0;
+    real powers = 0;
+
+    analog begin
+
+        V(OUT) <+ V(IN);
+        last_step = this_step;
+        this_step = $abstime;
+        dt = this_step - last_step;
+
+        powers = powers + V(OUT)*abs(I(OUT))*dt;
+
+        @ (initial_step) begin
+            file = $fopen("powers.csv", "a");
+        end
+
+        @ (final_step) begin
+            $fwrite(file, "%g\n\n", powers/this_step);
+            $fclose(file);
+        end
+
+    end
+
+endmodule
